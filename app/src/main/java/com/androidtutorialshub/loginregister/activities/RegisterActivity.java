@@ -192,11 +192,14 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
             user.setMobile(textInputEditTextMobile.getText().toString().trim());
 
 
-            spinnnerBtype.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            spinnnerBtype.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
-                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                     user.setBtype(spinnerTest(spinnnerBtype.getSelectedItem().toString().trim()));
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
 
                 }
             });
