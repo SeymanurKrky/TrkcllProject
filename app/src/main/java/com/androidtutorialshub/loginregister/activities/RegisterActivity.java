@@ -194,7 +194,9 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
             user.setMobile(textInputEditTextMobile.getText().toString().trim());
 
 
-            spinnnerBtype.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            user.setBtype(spinnnerBtype.getSelectedItem().toString().trim());
+
+            /*spinnnerBtype.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                     user.setBtype(spinnerTest(spinnnerBtype.getSelectedItem().toString().trim()));
@@ -204,7 +206,8 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                 public void onNothingSelected(AdapterView<?> parent) {
 
                 }
-            });
+            });*/
+
 
             user.setPassword(textInputEditTextPassword.getText().toString().trim());
 
@@ -215,9 +218,11 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
             // Snack Bar to show success message that record saved successfully
             Snackbar.make(nestedScrollView, getString(R.string.success_message), Snackbar.LENGTH_LONG).show();
-            Intent intentProfil = new Intent(getApplicationContext(), ProfilActivity.class);
-            startActivity(intentProfil);
+
+            Intent accountsIntent = new Intent(activity, ProfilActivity.class);
+            accountsIntent.putExtra("EMAIL", textInputEditTextEmail.getText().toString().trim());
             emptyInputEditText();
+            startActivity(accountsIntent);
 
 
         } else {
