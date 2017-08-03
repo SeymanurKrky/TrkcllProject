@@ -42,7 +42,7 @@ public class ProfilActivity extends AppCompatActivity {
     private AppCompatTextView tvNameGiris,tvEmailGiris,tvAddressGiris,tvMobileGiris,tvBtypeGiris;
     private AppCompatButton btnEdit;
     private AppCompatImageView ivProfileImage;
-    private Bitmap yourSelectedImage;
+    private static final int IMAGE_PICK = 1;
     private SQLiteDatabase db;
     private static final String TABLE_USER = "ssby";
     private static final String COLUMN_USER_ID = "user_id";
@@ -77,19 +77,15 @@ public class ProfilActivity extends AppCompatActivity {
         kayitGetir(emailFromIntent);
 
 
-
         btnEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ivProfileImage.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
-                        Intent i = new Intent(Intent.ACTION_PICK,
-                                android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI);
-                        final int ACTIVITY_SELECT_IMAGE = 1234;
-                        startActivityForResult(i, ACTIVITY_SELECT_IMAGE);
-                        ivProfileImage.setImageBitmap(yourSelectedImage);
+                        Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                        intent.setType("image/*");
+                        startActivityForResult(Intent.createChooser(intent, "Bir Fotoðraf Seçin"), IMAGE_PICK);
                     }
                 });
             }
@@ -101,6 +97,29 @@ public class ProfilActivity extends AppCompatActivity {
 
 
     }
+
+
+
+
+    private void imageFromGallery(int resultCode, Intent data) {
+        Uri selectedImage = data.getData();
+        String [] filePathColumn = {MediaStore.Images.Media.DATA};
+
+        Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
+        cursor.moveToFirst();
+
+        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+        String filePath = cursor.getString(columnIndex);
+        this.ivProfileImage.setImageBitmap(BitmapFactory.decodeFile(filePath));
+        cursor.close();
+
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+                    this.imageFromGallery(resultCode, data);
+    }
+
 
     private void kayitGetir(String email){
         String[] columns = {
@@ -146,28 +165,8 @@ public class ProfilActivity extends AppCompatActivity {
 
     }
 
-     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-         super.onActivityResult(requestCode, resultCode, data);
-
-         switch (requestCode) {
-             case 1234:
-                 if (resultCode == RESULT_OK) {
-                     Uri selectedImage = data.getData();
-                     String[] filePathColumn = {MediaStore.Images.Media.DATA};
-
-                     Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
-                     cursor.moveToFirst();
-
-                     int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                     String filePath = cursor.getString(columnIndex);
-                     cursor.close();
 
 
-                     yourSelectedImage = BitmapFactory.decodeFile(filePath);
-            /* Now you have choosen image in Bitmap format in object "yourSelectedImage". You can use it in way you want! */
-                 }
-         }
-     }
    /* private void initViews() {
 
         recyclerViewUsers = (RecyclerView) findViewById(R.id.recyclerViewUsers);

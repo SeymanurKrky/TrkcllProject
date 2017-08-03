@@ -1,5 +1,6 @@
 package com.androidtutorialshub.loginregister.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -16,6 +17,7 @@ import android.widget.Spinner;
 import com.androidtutorialshub.loginregister.R;
 import com.androidtutorialshub.loginregister.helpers.InputValidation;
 import com.androidtutorialshub.loginregister.model.User;
+import com.androidtutorialshub.loginregister.profil.ProfilActivity;
 import com.androidtutorialshub.loginregister.sql.DatabaseHelper;
 
 /**
@@ -213,6 +215,8 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
             // Snack Bar to show success message that record saved successfully
             Snackbar.make(nestedScrollView, getString(R.string.success_message), Snackbar.LENGTH_LONG).show();
+            Intent intentProfil = new Intent(getApplicationContext(), ProfilActivity.class);
+            startActivity(intentProfil);
             emptyInputEditText();
 
 
