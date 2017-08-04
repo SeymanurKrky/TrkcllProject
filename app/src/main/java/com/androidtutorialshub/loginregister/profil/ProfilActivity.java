@@ -2,46 +2,43 @@ package com.androidtutorialshub.loginregister.profil;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.MediaStore;
+import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.AppCompatButton;
+import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.androidtutorialshub.loginregister.R;
-import com.androidtutorialshub.loginregister.adapters.UsersRecyclerAdapter;
-import com.androidtutorialshub.loginregister.model.User;
-import com.androidtutorialshub.loginregister.sql.DatabaseHelper;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import com.androidtutorialshub.loginregister.sql.DatabaseHelper;
 
 public class ProfilActivity extends AppCompatActivity {
 
-    /*private AppCompatActivity activity = ProfilActivity.this;
-    private RecyclerView recyclerViewUsers;
-    private List<User> listUsers;
-    private UsersRecyclerAdapter usersRecyclerAdapter;
-    private DatabaseHelper databaseHelper;*/
     private DatabaseHelper databaseHelper;
-    //User u;
-    private AppCompatTextView tvNameGiris,tvEmailGiris,tvAddressGiris,tvMobileGiris,tvBtypeGiris;
-    private AppCompatButton btnEdit;
-    private AppCompatImageView ivProfileImage;
+
+    private TextInputEditText tvNameGiris, tvEmailGiris, tvAddressGiris, tvMobileGiris;
+    private AppCompatTextView tvBtypeGiris;
+    private AppCompatButton btnEdit, btnUpdate;
+    private ImageView ivProfileImage;
     private static final int IMAGE_PICK = 1;
     private SQLiteDatabase db;
     private static final String TABLE_USER = "ssby";
@@ -58,21 +55,29 @@ public class ProfilActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profil);
-        databaseHelper=new DatabaseHelper(this);
-        tvNameGiris=(AppCompatTextView)findViewById(R.id.tvNameGiris);
-        tvEmailGiris=(AppCompatTextView)findViewById(R.id.tvEmailGiris);
-        tvAddressGiris=(AppCompatTextView)findViewById(R.id.tvAddressGiris);
-        tvMobileGiris=(AppCompatTextView)findViewById(R.id.tvMobileGiris);
-        tvBtypeGiris=(AppCompatTextView)findViewById(R.id.tvBtypeGiris);
-        btnEdit=(AppCompatButton)findViewById(R.id.btnEdit);
-        ivProfileImage=(AppCompatImageView)findViewById(R.id.ivProfileImage);
+        databaseHelper = new DatabaseHelper(this);
+        tvNameGiris = (TextInputEditText) findViewById(R.id.tvNameGiris);
+        tvEmailGiris = (TextInputEditText) findViewById(R.id.tvEmailGiris);
+        tvAddressGiris = (TextInputEditText) findViewById(R.id.tvAddressGiris);
+        tvMobileGiris = (TextInputEditText) findViewById(R.id.tvMobileGiris);
+        tvBtypeGiris = (AppCompatTextView) findViewById(R.id.tvBtypeGiris);
+        btnEdit = (AppCompatButton) findViewById(R.id.btnEdit);
+        btnUpdate = (AppCompatButton) findViewById(R.id.btnUpdate);
+        ivProfileImage = (ImageView) findViewById(R.id.ivProfileImage);
+
+        db = databaseHelper.getReadableDatabase();
 
 
+        disableEditText(tvNameGiris);
+        disableEditText(tvEmailGiris);
+        disableEditText(tvAddressGiris);
+        disableEditText(tvMobileGiris);
 
-        db=databaseHelper.getReadableDatabase();
+        btnUpdate.setVisibility(View.GONE);
 
-
+        //login sayfasından gelen email
         String emailFromIntent = getIntent().getStringExtra("EMAIL");
+
 
         kayitGetir(emailFromIntent);
 
@@ -80,6 +85,8 @@ public class ProfilActivity extends AppCompatActivity {
         btnEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                ivProfileImage.setEnabled(true);
+
                 ivProfileImage.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -88,40 +95,77 @@ public class ProfilActivity extends AppCompatActivity {
                         startActivityForResult(Intent.createChooser(intent, "Bir Fotoðraf Seçin"), IMAGE_PICK);
                     }
                 });
+
+                enableEditText(tvNameGiris);
+                enableEditText(tvAddressGiris);
+                enableEditText(tvMobileGiris);
+
+                btnEdit.setVisibility(View.GONE);
+                btnUpdate.setVisibility(View.VISIBLE);
+
             }
         });
-       // initViews();
-       // initObjects();
 
 
-
+        btnUpdate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                editDatabase(tvNameGiris.getText().toString(),tvEmailGiris.getText().toString(),tvAddressGiris.getText().toString(),
+                        tvMobileGiris.getText().toString());
+                btnUpdate.setVisibility(View.GONE);
+                btnEdit.setVisibility(View.VISIBLE);
+                disableEditText(tvNameGiris);
+                disableEditText(tvAddressGiris);
+                disableEditText(tvMobileGiris);
+                ivProfileImage.setEnabled(false);
+            }
+        });
 
     }
 
 
+    //Edittext görünümünü textview gibi gösterme
+    private void disableEditText(TextInputEditText editText) {
+        //editText.setFocusable(false);
+        editText.setEnabled(false);
+        // editText.setCursorVisible(false);
+        // editText.setKeyListener(null);
+        // editText.setBackgroundColor(Color.TRANSPARENT);
+    }
 
+    private void enableEditText(TextInputEditText editText) {
+         editText.setFocusable(true);
+        editText.setEnabled(true);
+        editText.setCursorVisible(true);
+        // editText.setKeyListener();
+        // editText.setBackgroundColor(Color.TRANSPARENT);
+    }
 
+    //galeriden resim çekme
     private void imageFromGallery(int resultCode, Intent data) {
         Uri selectedImage = data.getData();
-        String [] filePathColumn = {MediaStore.Images.Media.DATA};
+        String[] filePathColumn = {MediaStore.Images.Media.DATA};
 
         Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
         cursor.moveToFirst();
 
         int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
         String filePath = cursor.getString(columnIndex);
-        this.ivProfileImage.setImageBitmap(BitmapFactory.decodeFile(filePath));
+        Bitmap imgBitmap = BitmapFactory.decodeFile(filePath);
+        Bitmap resized = Bitmap.createScaledBitmap(imgBitmap, 100, 100, true);
+        this.ivProfileImage.setImageBitmap(resized);
         cursor.close();
 
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-                    this.imageFromGallery(resultCode, data);
+        this.imageFromGallery(resultCode, data);
     }
 
 
-    private void kayitGetir(String email){
+    //edit textteki verileri doldurmak için veritabınından verileri çekme
+    private void kayitGetir(String email) {
         String[] columns = {
                 COLUMN_USER_NAME,
                 COLUMN_USER_EMAIL,
@@ -156,7 +200,6 @@ public class ProfilActivity extends AppCompatActivity {
                 tvBtypeGiris.setText(cursor.getString(cursor.getColumnIndex(COLUMN_USER_BLOODTYPE)));
 
 
-
             } while (cursor.moveToNext());
         }
         cursor.close();
@@ -166,144 +209,20 @@ public class ProfilActivity extends AppCompatActivity {
     }
 
 
+    //update database
+    private void editDatabase(String name, String email, String address, String mobile) {
+        db = databaseHelper.getWritableDatabase();
+        String where = COLUMN_USER_EMAIL+ " = ?";
+        ContentValues cv = new ContentValues();
+        cv.put(COLUMN_USER_NAME, name);
+        cv.put(COLUMN_USER_ADDRESS,address);
+        cv.put(COLUMN_USER_MOBILE,mobile);
 
-   /* private void initViews() {
+        db.update(TABLE_USER, cv,  where, new String[]{String.valueOf(email)});
 
-        recyclerViewUsers = (RecyclerView) findViewById(R.id.recyclerViewUsers);
-    }*/
-    /*private void initObjects() {
-        listUsers = new ArrayList<>();
-        usersRecyclerAdapter = new UsersRecyclerAdapter(listUsers);
-
-        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
-        recyclerViewUsers.setLayoutManager(mLayoutManager);
-        recyclerViewUsers.setItemAnimator(new DefaultItemAnimator());
-        recyclerViewUsers.setHasFixedSize(true);
-        recyclerViewUsers.setAdapter(usersRecyclerAdapter);
-        databaseHelper = new DatabaseHelper(activity);
+    }
 
 
 
-        getDataFromSQLite();
-    }*/
-   /* private void getDataFromSQLite() {
-        // AsyncTask is used that SQLite operation not blocks the UI Thread.
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... params) {
-                listUsers.clear();
-                listUsers.addAll(databaseHelper.getAllUser());
-
-                return null;
-            }
-
-            @Override
-            protected void onPostExecute(Void aVoid) {
-                super.onPostExecute(aVoid);
-                usersRecyclerAdapter.notifyDataSetChanged();
-            }
-        }.execute();
-    }*/
-
-
-
-
-
-
-
-
-      /*  u=new User();
-        tvNameGiris=(AppCompatTextView)findViewById(R.id.tvNameGiris);
-        tvEmailGiris=(AppCompatTextView)findViewById(R.id.tvEmailGiris);
-        tvAddressGiris=(AppCompatTextView)findViewById(R.id.tvAddressGiris);
-        tvMobileGiris=(AppCompatTextView)findViewById(R.id.tvMobileGiris);
-        tvBtypeGiris=(AppCompatTextView)findViewById(R.id.tvBtypeGiris);
-        btnEdit=(AppCompatButton)findViewById(R.id.btnEdit);
-        ivProfileImage=(AppCompatImageView)findViewById(R.id.ivProfileImage);
-
-        tvNameGiris.setText(u.getName().toString());
-        tvEmailGiris.setText(u.getEmail().toString());
-        tvAddressGiris.setText(u.getAddress().toString());
-        tvMobileGiris.setText(u.getMobile().toString());
-        tvBtypeGiris.setText(u.getBtype().toString());
-
-
-        ivProfileImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                Intent i = new Intent(Intent.ACTION_PICK,
-                        android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI);
-                final int ACTIVITY_SELECT_IMAGE = 1234;
-                startActivityForResult(i, ACTIVITY_SELECT_IMAGE);
-                ivProfileImage.setImageBitmap(yourSelectedImage);
-            }
-        });
-
-
-
-    /*
-
-
-
-
-
-
-
-    public void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == SELECT_IMAGE)
-        {
-            if (resultCode == Activity.RESULT_OK)
-            {
-                if (data != null)
-                {
-                    try
-                    {
-
-                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), data.getData());
-
-                    } catch (IOException e)
-                    {
-                        e.printStackTrace();
-                    }
-
-                }
-            } else if (resultCode == Activity.RESULT_CANCELED)
-            {
-                Toast.makeText(getActivity(), "Cancelled", Toast.LENGTH_SHORT).show();
-            }
-        }*/
-
-
-
-
-
-
-   /* protected void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        switch(requestCode) {
-            case 1234:
-                if(resultCode == RESULT_OK){
-                    Uri selectedImage = data.getData();
-                    String[] filePathColumn = {MediaStore.Images.Media.DATA};
-
-                    Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
-                    cursor.moveToFirst();
-
-                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                    String filePath = cursor.getString(columnIndex);
-                    cursor.close();
-
-
-                     yourSelectedImage = BitmapFactory.decodeFile(filePath);
-            /* Now you have choosen image in Bitmap format in object "yourSelectedImage". You can use it in way you want! */
-//}
-       // }
-
-  //  };
 
 }
