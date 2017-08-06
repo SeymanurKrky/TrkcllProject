@@ -172,11 +172,6 @@ public class ProfilActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         this.imageFromGallery(resultCode, data);
-
-
-
-
-        
     }
 
 
