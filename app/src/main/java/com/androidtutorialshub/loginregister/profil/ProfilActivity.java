@@ -31,6 +31,8 @@ import com.androidtutorialshub.loginregister.R;
 
 import com.androidtutorialshub.loginregister.sql.DatabaseHelper;
 
+import java.io.ByteArrayOutputStream;
+
 public class ProfilActivity extends AppCompatActivity {
 
     private DatabaseHelper databaseHelper;
@@ -41,6 +43,7 @@ public class ProfilActivity extends AppCompatActivity {
     private ImageView ivProfileImage;
     private static final int IMAGE_PICK = 1;
     private SQLiteDatabase db;
+    Bitmap resized;
     private static final String TABLE_USER = "ssby";
     private static final String COLUMN_USER_ID = "user_id";
     private static final String COLUMN_USER_NAME = "user_name";
@@ -49,6 +52,8 @@ public class ProfilActivity extends AppCompatActivity {
     private static final String COLUMN_USER_MOBILE = "user_mobile";
     private static final String COLUMN_USER_BLOODTYPE = "user_btype";
     private static final String COLUMN_USER_PASSWORD = "user_password";
+    private static final String COLUMN_USER_IMAGE= "user_image";
+
 
     @Override
 
@@ -81,7 +86,6 @@ public class ProfilActivity extends AppCompatActivity {
 
         kayitGetir(emailFromIntent);
 
-
         btnEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -110,8 +114,9 @@ public class ProfilActivity extends AppCompatActivity {
         btnUpdate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                byte[] img=getBytes(resized);
                 editDatabase(tvNameGiris.getText().toString(),tvEmailGiris.getText().toString(),tvAddressGiris.getText().toString(),
-                        tvMobileGiris.getText().toString());
+                        tvMobileGiris.getText().toString(),img);
                 btnUpdate.setVisibility(View.GONE);
                 btnEdit.setVisibility(View.VISIBLE);
                 disableEditText(tvNameGiris);
@@ -152,10 +157,16 @@ public class ProfilActivity extends AppCompatActivity {
         int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
         String filePath = cursor.getString(columnIndex);
         Bitmap imgBitmap = BitmapFactory.decodeFile(filePath);
-        Bitmap resized = Bitmap.createScaledBitmap(imgBitmap, 100, 100, true);
+        resized = Bitmap.createScaledBitmap(imgBitmap, 100, 100, true);
         this.ivProfileImage.setImageBitmap(resized);
         cursor.close();
 
+    }
+    // convert from bitmap to byte array
+    public static byte[] getBytes(Bitmap bitmap) {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 0, stream);
+        return stream.toByteArray();
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -172,6 +183,7 @@ public class ProfilActivity extends AppCompatActivity {
                 COLUMN_USER_ADDRESS,
                 COLUMN_USER_MOBILE,
                 COLUMN_USER_BLOODTYPE,
+                COLUMN_USER_IMAGE
 
         };
 
@@ -198,7 +210,9 @@ public class ProfilActivity extends AppCompatActivity {
                 tvAddressGiris.setText(cursor.getString(cursor.getColumnIndex(COLUMN_USER_ADDRESS)));
                 tvMobileGiris.setText(cursor.getString(cursor.getColumnIndex(COLUMN_USER_MOBILE)));
                 tvBtypeGiris.setText(cursor.getString(cursor.getColumnIndex(COLUMN_USER_BLOODTYPE)));
+                byte[] image =cursor.getBlob(cursor.getColumnIndex(COLUMN_USER_IMAGE));
 
+                ivProfileImage.setImageBitmap(BitmapFactory.decodeByteArray(image, 0, image.length));
 
             } while (cursor.moveToNext());
         }
@@ -210,13 +224,14 @@ public class ProfilActivity extends AppCompatActivity {
 
 
     //update database
-    private void editDatabase(String name, String email, String address, String mobile) {
+    private void editDatabase(String name, String email, String address, String mobile, byte[] image) {
         db = databaseHelper.getWritableDatabase();
         String where = COLUMN_USER_EMAIL+ " = ?";
         ContentValues cv = new ContentValues();
         cv.put(COLUMN_USER_NAME, name);
         cv.put(COLUMN_USER_ADDRESS,address);
         cv.put(COLUMN_USER_MOBILE,mobile);
+        cv.put(COLUMN_USER_IMAGE,image);
 
         db.update(TABLE_USER, cv,  where, new String[]{String.valueOf(email)});
 

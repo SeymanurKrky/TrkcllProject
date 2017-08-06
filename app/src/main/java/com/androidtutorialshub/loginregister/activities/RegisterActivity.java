@@ -1,6 +1,8 @@
 package com.androidtutorialshub.loginregister.activities;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -210,6 +212,9 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
 
             user.setPassword(textInputEditTextPassword.getText().toString().trim());
+            Bitmap largeIcon = BitmapFactory.decodeResource(getResources(), R.drawable.profil);
+            byte [] image=ProfilActivity.getBytes(largeIcon);
+            user.setImage(image);
 
 
 

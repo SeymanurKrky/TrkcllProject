@@ -33,12 +33,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_USER_MOBILE = "user_mobile";
     private static final String COLUMN_USER_BLOODTYPE = "user_btype";
     private static final String COLUMN_USER_PASSWORD = "user_password";
+    private static final String COLUMN_USER_IMAGE= "user_image";
 
     // create table sql query
     private String CREATE_USER_TABLE = "CREATE TABLE " + TABLE_USER + "("
             + COLUMN_USER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + COLUMN_USER_NAME + " TEXT, "+ COLUMN_USER_EMAIL + " TEXT, "
             +COLUMN_USER_ADDRESS+ " TEXT ,"+ COLUMN_USER_MOBILE+" TEXT ,"+COLUMN_USER_BLOODTYPE+" TEXT ,"
-            + COLUMN_USER_PASSWORD + " TEXT " + ")";
+            + COLUMN_USER_PASSWORD + " TEXT, " + COLUMN_USER_IMAGE + " BLOB)";
 
     // drop table sql query
     private String DROP_USER_TABLE = "DROP TABLE IF EXISTS " + TABLE_USER;
@@ -77,7 +78,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      */
     public void addUser(User user) {
         SQLiteDatabase db = this.getWritableDatabase();
-
         ContentValues values = new ContentValues();
         values.put(COLUMN_USER_NAME, user.getName());
         values.put(COLUMN_USER_EMAIL, user.getEmail());
@@ -85,7 +85,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_USER_MOBILE,user.getMobile());
         values.put(COLUMN_USER_BLOODTYPE,user.getBtype());
         values.put(COLUMN_USER_PASSWORD, user.getPassword());
-
+        values.put(COLUMN_USER_IMAGE,user.getImage());
 
         // Inserting Row
         db.insert(TABLE_USER, null, values);
@@ -141,6 +141,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 user.setMobile(cursor.getString(cursor.getColumnIndex(COLUMN_USER_MOBILE)));
                 user.setBtype(cursor.getString(cursor.getColumnIndex(COLUMN_USER_BLOODTYPE)));
                 user.setPassword(cursor.getString(cursor.getColumnIndex(COLUMN_USER_PASSWORD)));
+                byte[] image = cursor.getBlob(1);
                 // Adding user record to list
                 userList.add(user);
             } while (cursor.moveToNext());
@@ -168,6 +169,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_USER_MOBILE,user.getMobile());
         values.put(COLUMN_USER_BLOODTYPE,user.getBtype());
         values.put(COLUMN_USER_PASSWORD,user.getPassword());
+        values.put(COLUMN_USER_IMAGE,user.getImage());
 
 
 
