@@ -1,0 +1,160 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/cardview_dark_background"
+    tools:context="com.androidtutorialshub.loginregister.fragments.ProfileFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/ivProfileImage"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="10dp"/>
+
+        <android.support.v7.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginTop="5dp"
+            android:gravity="center">
+
+            <android.support.v7.widget.AppCompatTextView
+                android:layout_width="120dp"
+                android:layout_height="30dp"
+                android:text="@string/hint_name"
+                android:textSize="20dp"
+
+
+                />
+
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/tvNameGiris"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:textSize="20dp" />
+
+        </android.support.v7.widget.LinearLayoutCompat>
+
+        <android.support.v7.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginTop="20dp"
+            android:gravity="center">
+
+            <android.support.v7.widget.AppCompatTextView
+                android:layout_width="120dp"
+                android:layout_height="30dp"
+                android:text="@string/hint_email"
+                android:textSize="20dp" />
+
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/tvEmailGiris"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:textSize="20dp" />
+
+        </android.support.v7.widget.LinearLayoutCompat>
+
+
+        <android.support.v7.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginTop="20dp"
+            android:gravity="center">
+
+            <android.support.v7.widget.AppCompatTextView
+                android:layout_width="120dp"
+                android:layout_height="30dp"
+                android:text="@string/hint_address"
+                android:textSize="20dp"
+
+                />
+
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/tvAddressGiris"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:textSize="20dp" />
+        </android.support.v7.widget.LinearLayoutCompat>
+
+
+        <android.support.v7.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:gravity="center">
+
+            <android.support.v7.widget.AppCompatTextView
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:text="@string/hint_mobile"
+                android:textSize="20dp" />
+
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/tvMobileGiris"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:inputType="phone"
+                android:digits="0123456789+"
+                android:textSize="20dp" />
+
+        </android.support.v7.widget.LinearLayoutCompat>
+
+        <android.support.v7.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:gravity="center">
+
+            <android.support.v7.widget.AppCompatTextView
+                android:layout_width="120dp"
+                android:layout_height="30dp"
+                android:text="Blood Type"
+                android:textSize="20dp" />
+
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/tvBtypeGiris"
+                android:layout_width="200dp"
+                android:layout_height="30dp"
+                android:textColor="@android:color/white"
+                android:textSize="20dp" />
+        </android.support.v7.widget.LinearLayoutCompat>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp">
+
+            <android.support.v7.widget.AppCompatButton
+                android:id="@+id/btnEdit"
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:background="@color/colorTextHint"
+                android:text="EDIT"
+                android:textSize="20dp" />
+
+            <android.support.v7.widget.AppCompatButton
+                android:id="@+id/btnUpdate"
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:background="@color/colorTextHint"
+                android:text="Update"
+                android:textSize="20dp" />
+        </FrameLayout>
+
+    </LinearLayout>
+
+</FrameLayout>
