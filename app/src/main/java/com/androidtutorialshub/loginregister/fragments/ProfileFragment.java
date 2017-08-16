@@ -2,12 +2,15 @@ package com.androidtutorialshub.loginregister.fragments;
 
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.widget.AppCompatButton;
@@ -49,6 +52,7 @@ public class ProfileFragment extends Fragment {
     private static final String COLUMN_USER_BLOODTYPE = "user_btype";
     private static final String COLUMN_USER_PASSWORD = "user_password";
     private static final String COLUMN_USER_IMAGE= "user_image";
+
     private String email;
     View view;
     @Nullable
@@ -143,6 +147,7 @@ public class ProfileFragment extends Fragment {
         return stream.toByteArray();
     }
 
+
     private void enableEditText(TextInputEditText editText) {
         editText.setFocusable(true);
         editText.setEnabled(true);
@@ -151,6 +156,26 @@ public class ProfileFragment extends Fragment {
         // editText.setBackgroundColor(Color.TRANSPARENT);
     }
 
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        this.imageFromGallery(resultCode, data);
+    }
+    //galeriden resim çekme
+    private void imageFromGallery(int resultCode, Intent data) {
+        Uri selectedImage = data.getData();
+        String[] filePathColumn = {MediaStore.Images.Media.DATA};
+        Context applicationContext = NavigaActivity.getContextOfApplication();
+        Cursor cursor = applicationContext.getContentResolver().query(selectedImage, filePathColumn, null, null, null);
+        cursor.moveToFirst();
+
+        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+        String filePath = cursor.getString(columnIndex);
+        Bitmap imgBitmap = BitmapFactory.decodeFile(filePath);
+        resized = Bitmap.createScaledBitmap(imgBitmap, 100, 100, true);
+        this.ivProfileImage.setImageBitmap(resized);
+        cursor.close();
+
+    }
     private void kayitGetir(String email) {
         String[] columns = {
                 COLUMN_USER_NAME,
@@ -209,4 +234,7 @@ public class ProfileFragment extends Fragment {
         db.update(TABLE_USER, cv,  where, new String[]{String.valueOf(email)});
 
     }
+
+
+
 }
