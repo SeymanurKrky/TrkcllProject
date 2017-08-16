@@ -35,7 +35,7 @@ public class NavigaActivity extends AppCompatActivity
     CircleImageView profileImage;
     NavigationView navigationView=null;
     Toolbar toolbar=null;
-    String emailFromIntent; //login user mail
+    private String emailFromIntent; //login user mail
     private static final String TABLE_USER = "ssby";
     private static final String COLUMN_USER_NAME = "user_name";
     private static final String COLUMN_USER_EMAIL = "user_email";
@@ -140,7 +140,10 @@ public class NavigaActivity extends AppCompatActivity
             fragmentTransaction.commit();
         } else if (id == R.id.nav_gallery) {
 //set the fragment initially
+            Bundle bundle=new Bundle();
+            bundle.putString("EMAIL",emailFromIntent);
             ProfileFragment fragment=new ProfileFragment();
+            fragment.setArguments(bundle);
             android.support.v4.app.FragmentTransaction fragmentTransaction=getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.fragment_container,fragment).commit();
 
