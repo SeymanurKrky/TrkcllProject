@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "978168133591",
+    "firebase_url": "https://trkcellproject.firebaseio.com",
+    "project_id": "trkcellproject",
+    "storage_bucket": "trkcellproject.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:978168133591:android:5ab97657037acd30",
+        "android_client_info": {
+          "package_name": "com.androidtutorialshub.loginregister"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "978168133591-di53mt7m2qqepddfc4uitqft9ms3m0pt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.androidtutorialshub.loginregister",
+            "certificate_hash": "6db63edb7d852a5cdb2541cca36dbb55bf69386f"
+          }
+        },
+        {
+          "client_id": "978168133591-52bbt04bvf66lffslufq1t7elsqe1str.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA5-kUMJC68M3JGkP8i_7SSa7ZSkDpbibk"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "978168133591-52bbt04bvf66lffslufq1t7elsqe1str.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
