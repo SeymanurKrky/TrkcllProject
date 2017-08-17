@@ -1,5 +1,6 @@
 package com.androidtutorialshub.loginregister.activities;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
@@ -35,6 +36,8 @@ public class NavigaActivity extends AppCompatActivity
     CircleImageView profileImage;
     NavigationView navigationView=null;
     Toolbar toolbar=null;
+    public static Context contextOfApplication;
+
     private String emailFromIntent; //login user mail
     private static final String TABLE_USER = "ssby";
     private static final String COLUMN_USER_NAME = "user_name";
@@ -61,7 +64,7 @@ public class NavigaActivity extends AppCompatActivity
         databaseHelper = new DatabaseHelper(this);
         db = databaseHelper.getReadableDatabase();
         emailFromIntent = getIntent().getStringExtra("EMAIL");
-
+        contextOfApplication = getApplicationContext();
 
         //tvUserEmail.setText("slm@sml.com");
          toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -160,6 +163,10 @@ public class NavigaActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+    public static Context getContextOfApplication()
+    {
+        return contextOfApplication;
     }
     private void kayitGetir(String email) {
         String[] columns = {
