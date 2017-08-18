@@ -15,18 +15,31 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatTextView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.app.Fragment;
-import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.androidtutorialshub.loginregister.R;
+import com.androidtutorialshub.loginregister.activities.LoginActivity;
 import com.androidtutorialshub.loginregister.activities.NavigaActivity;
+import com.androidtutorialshub.loginregister.model.User;
 import com.androidtutorialshub.loginregister.sql.DatabaseHelper;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import java.io.ByteArrayOutputStream;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * Created by Seymanur on 16.08.2017.
@@ -36,8 +49,7 @@ public class ProfileFragment extends Fragment {
 
     private DatabaseHelper databaseHelper;
 
-    private TextInputEditText tvNameGiris, tvEmailGiris, tvAddressGiris, tvMobileGiris;
-    private AppCompatTextView tvBtypeGiris;
+    private TextInputEditText tvNameGiris, tvEmailGiris, tvSurnameGiris, tvMobileGiris;
     private AppCompatButton btnEdit, btnUpdate;
     private ImageView ivProfileImage;
     private static final int IMAGE_PICK = 1;
@@ -53,7 +65,11 @@ public class ProfileFragment extends Fragment {
     private static final String COLUMN_USER_PASSWORD = "user_password";
     private static final String COLUMN_USER_IMAGE= "user_image";
 
-    private String email;
+    private String email,userId;
+    private DatabaseReference mDatabase;
+    private DatabaseReference myDatabaseReference;
+    User myUser;
+    FirebaseAuth auth;
     View view;
     @Nullable
     @Override
@@ -67,44 +83,47 @@ public class ProfileFragment extends Fragment {
         databaseHelper = new DatabaseHelper(getContext());
         tvNameGiris = (TextInputEditText) view.findViewById(R.id.tvNameGiris);
         tvEmailGiris = (TextInputEditText) view.findViewById(R.id.tvEmailGiris);
-        tvAddressGiris = (TextInputEditText) view.findViewById(R.id.tvAddressGiris);
+        tvSurnameGiris = (TextInputEditText) view.findViewById(R.id.tvSurnameGiris);
         tvMobileGiris = (TextInputEditText) view.findViewById(R.id.tvMobileGiris);
-        tvBtypeGiris = (AppCompatTextView) view.findViewById(R.id.tvBtypeGiris);
         btnEdit = (AppCompatButton) view.findViewById(R.id.btnEdit);
         btnUpdate = (AppCompatButton) view.findViewById(R.id.btnUpdate);
         ivProfileImage = (ImageView) view.findViewById(R.id.ivProfileImage);
 
-        db = databaseHelper.getReadableDatabase();
+        //db = databaseHelper.getReadableDatabase();
 
 
         disableEditText(tvNameGiris);
         disableEditText(tvEmailGiris);
-        disableEditText(tvAddressGiris);
+        disableEditText(tvSurnameGiris);
         disableEditText(tvMobileGiris);
 
         btnUpdate.setVisibility(View.GONE);
 
         //login sayfasından gelen email
-        email=this.getArguments().getString("EMAIL").toString();
+        //email=this.getArguments().getString("EMAIL").toString();
 
-        kayitGetir(email);
+        //kayitGetir(email);
 
+        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        Bundle bundle = getArguments();
+        myUser = (User)bundle.get("User");
+        userId=(String)bundle.get("UserId");
+        tvEmailGiris.setText(user.getEmail());
+        tvNameGiris.setText(myUser.getName());
+        tvSurnameGiris.setText(myUser.getSurname());
+        tvMobileGiris.setText(myUser.getMobile());
+        if(myUser.getImage()!=null){
+            String fileData=myUser.getImage().toString();
+            Bitmap imgBitmap = BitmapFactory.decodeFile(fileData);
+            Bitmap resized = Bitmap.createScaledBitmap(imgBitmap, 100, 100, true);
+            ivProfileImage.setImageBitmap(resized);
+        }
         btnEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ivProfileImage.setEnabled(true);
-
-                ivProfileImage.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                        intent.setType("image/*");
-                        startActivityForResult(Intent.createChooser(intent, "Bir Fotoðraf Seçin"), IMAGE_PICK);
-                    }
-                });
 
                 enableEditText(tvNameGiris);
-                enableEditText(tvAddressGiris);
+                enableEditText(tvSurnameGiris);
                 enableEditText(tvMobileGiris);
 
                 btnEdit.setVisibility(View.GONE);
@@ -117,20 +136,89 @@ public class ProfileFragment extends Fragment {
         btnUpdate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                byte[] img=getBytes(resized);
-                editDatabase(tvNameGiris.getText().toString(),tvEmailGiris.getText().toString(),tvAddressGiris.getText().toString(),
+                //byte[] img=getBytes(resized);
+                updatePerson(tvNameGiris.getText().toString(),tvEmailGiris.getText().toString(),tvSurnameGiris.getText().toString(),tvMobileGiris.getText().toString());
+                btnUpdate.setVisibility(View.GONE);
+                btnEdit.setVisibility(View.VISIBLE);
+                disableEditText(tvNameGiris);
+                disableEditText(tvSurnameGiris);
+                disableEditText(tvMobileGiris);
+                ivProfileImage.setEnabled(false);
+                Toast.makeText(getActivity(), "Update is success!", Toast.LENGTH_SHORT).show();
+                 auth = FirebaseAuth.getInstance();
+                if (auth.getCurrentUser() != null) {
+                   auth.getCurrentUser().getUid();
+                }
+                mDatabase = FirebaseDatabase.getInstance().getReference();
+                mDatabase.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        // This method is called once with the initial value and again
+                        // whenever data at this location is updated.
+                        if(auth.getCurrentUser()!=null){
+                            User myUser= LoginActivity.getUserInfo(dataSnapshot);
+                            Intent accountsIntent = new Intent(getActivity(), NavigaActivity.class);
+                            Bundle b = new Bundle();
+                            b.putSerializable("User", myUser);
+                            accountsIntent.putExtras(b);
+                            startActivity(accountsIntent);
+                        }
+
+                    }
+
+
+                    @Override
+                    public void onCancelled(DatabaseError error) {
+                        // Failed to read value
+                    }
+                });
+
+                /*byte[] img=getBytes(resized);
+                editDatabase(tvNameGiris.getText().toString(),tvEmailGiris.getText().toString(), tvSurnameGiris.getText().toString(),
                         tvMobileGiris.getText().toString(),img);
                 btnUpdate.setVisibility(View.GONE);
                 btnEdit.setVisibility(View.VISIBLE);
                 disableEditText(tvNameGiris);
-                disableEditText(tvAddressGiris);
+                disableEditText(tvSurnameGiris);
                 disableEditText(tvMobileGiris);
-                ivProfileImage.setEnabled(false);
+                ivProfileImage.setEnabled(false);*/
             }
         });
 
 
         return view;
+    }
+
+    public  void updatePerson(String name,String email,String surname,String mobile){
+        String usersId;
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        //myDatabaseReference=FirebaseDatabase.getInstance().getReference("Users");
+        DatabaseReference mFirebaseDatabase = FirebaseDatabase.getInstance().getReference("Users");
+        if (TextUtils.isEmpty(name)) {
+            Toast.makeText(getActivity(), "Enter email name!", Toast.LENGTH_SHORT).show();
+            return;
+        }else{
+            mDatabase.child("Users").child(userId).child("name").setValue(name);
+        }
+
+        if (TextUtils.isEmpty(email)) {
+            Toast.makeText(getActivity(), "Enter email!", Toast.LENGTH_SHORT).show();
+            return;
+        }else{
+            mDatabase.child("Users").child(userId).child("email").setValue(email);
+        }
+        if (TextUtils.isEmpty(surname)) {
+            Toast.makeText(getActivity(), "Enter surname!", Toast.LENGTH_SHORT).show();
+            return;
+        }else{
+            mDatabase.child("Users").child(userId).child("surname").setValue(surname);
+        }
+        if (TextUtils.isEmpty(mobile)) {
+            Toast.makeText(getActivity(), "Enter mobile!", Toast.LENGTH_SHORT).show();
+            return;
+        }else{
+            mDatabase.child("Users").child(userId).child("mobile").setValue(mobile);
+        }
     }
     //Edittext görünümünü textview gibi gösterme
     private void disableEditText(TextInputEditText editText) {
@@ -156,26 +244,6 @@ public class ProfileFragment extends Fragment {
         // editText.setBackgroundColor(Color.TRANSPARENT);
     }
 
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        this.imageFromGallery(resultCode, data);
-    }
-    //galeriden resim çekme
-    private void imageFromGallery(int resultCode, Intent data) {
-        Uri selectedImage = data.getData();
-        String[] filePathColumn = {MediaStore.Images.Media.DATA};
-        Context applicationContext = NavigaActivity.getContextOfApplication();
-        Cursor cursor = applicationContext.getContentResolver().query(selectedImage, filePathColumn, null, null, null);
-        cursor.moveToFirst();
-
-        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-        String filePath = cursor.getString(columnIndex);
-        Bitmap imgBitmap = BitmapFactory.decodeFile(filePath);
-        resized = Bitmap.createScaledBitmap(imgBitmap, 100, 100, true);
-        this.ivProfileImage.setImageBitmap(resized);
-        cursor.close();
-
-    }
     private void kayitGetir(String email) {
         String[] columns = {
                 COLUMN_USER_NAME,
@@ -207,9 +275,8 @@ public class ProfileFragment extends Fragment {
                 //user.setId(Integer.parseInt(cursor.getString(cursor.getColumnIndex(COLUMN_USER_ID))));
                 tvNameGiris.setText(cursor.getString(cursor.getColumnIndex(COLUMN_USER_NAME)));
                 tvEmailGiris.setText(cursor.getString(cursor.getColumnIndex(COLUMN_USER_EMAIL)));
-                tvAddressGiris.setText(cursor.getString(cursor.getColumnIndex(COLUMN_USER_ADDRESS)));
+                tvSurnameGiris.setText(cursor.getString(cursor.getColumnIndex(COLUMN_USER_ADDRESS)));
                 tvMobileGiris.setText(cursor.getString(cursor.getColumnIndex(COLUMN_USER_MOBILE)));
-                tvBtypeGiris.setText(cursor.getString(cursor.getColumnIndex(COLUMN_USER_BLOODTYPE)));
                 byte[] image =cursor.getBlob(cursor.getColumnIndex(COLUMN_USER_IMAGE));
 
                 ivProfileImage.setImageBitmap(BitmapFactory.decodeByteArray(image, 0, image.length));

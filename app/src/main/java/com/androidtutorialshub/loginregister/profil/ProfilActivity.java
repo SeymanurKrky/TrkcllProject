@@ -12,6 +12,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -29,7 +30,10 @@ import android.widget.Toast;
 
 import com.androidtutorialshub.loginregister.R;
 
+import com.androidtutorialshub.loginregister.activities.LoginActivity;
 import com.androidtutorialshub.loginregister.sql.DatabaseHelper;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.io.ByteArrayOutputStream;
 
@@ -38,7 +42,6 @@ public class ProfilActivity extends AppCompatActivity {
     private DatabaseHelper databaseHelper;
 
     private TextInputEditText tvNameGiris, tvEmailGiris, tvAddressGiris, tvMobileGiris;
-    private AppCompatTextView tvBtypeGiris;
     private AppCompatButton btnEdit, btnUpdate;
     private ImageView ivProfileImage;
     private static final int IMAGE_PICK = 1;
@@ -53,6 +56,9 @@ public class ProfilActivity extends AppCompatActivity {
     private static final String COLUMN_USER_BLOODTYPE = "user_btype";
     private static final String COLUMN_USER_PASSWORD = "user_password";
     private static final String COLUMN_USER_IMAGE= "user_image";
+    private FirebaseAuth auth;
+
+    private FirebaseAuth.AuthStateListener authListener;
 
 
     @Override
@@ -60,12 +66,31 @@ public class ProfilActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profil);
+
+        //get firebase auth instance
+        auth = FirebaseAuth.getInstance();
+
+        //get current user
+        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        authListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user == null) {
+                    // user auth state is changed - user is null
+                    // launch login activity
+                    startActivity(new Intent(ProfilActivity.this, LoginActivity.class));
+                    finish();
+                }
+            }
+        };
+
         databaseHelper = new DatabaseHelper(this);
         tvNameGiris = (TextInputEditText) findViewById(R.id.tvNameGiris);
         tvEmailGiris = (TextInputEditText) findViewById(R.id.tvEmailGiris);
         tvAddressGiris = (TextInputEditText) findViewById(R.id.tvAddressGiris);
         tvMobileGiris = (TextInputEditText) findViewById(R.id.tvMobileGiris);
-        tvBtypeGiris = (AppCompatTextView) findViewById(R.id.tvBtypeGiris);
         btnEdit = (AppCompatButton) findViewById(R.id.btnEdit);
         btnUpdate = (AppCompatButton) findViewById(R.id.btnUpdate);
         ivProfileImage = (ImageView) findViewById(R.id.ivProfileImage);
@@ -209,7 +234,6 @@ public class ProfilActivity extends AppCompatActivity {
                 tvEmailGiris.setText(cursor.getString(cursor.getColumnIndex(COLUMN_USER_EMAIL)));
                 tvAddressGiris.setText(cursor.getString(cursor.getColumnIndex(COLUMN_USER_ADDRESS)));
                 tvMobileGiris.setText(cursor.getString(cursor.getColumnIndex(COLUMN_USER_MOBILE)));
-                tvBtypeGiris.setText(cursor.getString(cursor.getColumnIndex(COLUMN_USER_BLOODTYPE)));
                 byte[] image =cursor.getBlob(cursor.getColumnIndex(COLUMN_USER_IMAGE));
 
                 ivProfileImage.setImageBitmap(BitmapFactory.decodeByteArray(image, 0, image.length));
@@ -235,6 +259,25 @@ public class ProfilActivity extends AppCompatActivity {
 
         db.update(TABLE_USER, cv,  where, new String[]{String.valueOf(email)});
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        auth.addAuthStateListener(authListener);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (authListener != null) {
+            auth.removeAuthStateListener(authListener);
+        }
     }
 
 

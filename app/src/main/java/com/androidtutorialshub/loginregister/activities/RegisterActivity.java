@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
@@ -12,15 +13,24 @@ import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatTextView;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.androidtutorialshub.loginregister.R;
 import com.androidtutorialshub.loginregister.helpers.InputValidation;
 import com.androidtutorialshub.loginregister.model.User;
 import com.androidtutorialshub.loginregister.profil.ProfilActivity;
 import com.androidtutorialshub.loginregister.sql.DatabaseHelper;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 /**
  * Created by lalit on 8/27/2016.
@@ -43,6 +53,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     private TextInputEditText textInputEditTextEmail;
     private TextInputEditText textInputEditTextAddress;
     private TextInputEditText textInputEditTextMobile;
+    private TextInputEditText textInputEditTextSurname;
     private TextInputEditText textInputEditTextPassword;
     private TextInputEditText textInputEditTextConfirmPassword;
 
@@ -52,8 +63,12 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     private AppCompatTextView appCompatTextViewLoginLink;
 
     private InputValidation inputValidation;
-    private DatabaseHelper databaseHelper;
     private User user;
+    private FirebaseAuth auth;
+    private FirebaseDatabase mFirebaseDatabase;
+    private DatabaseReference myRef;
+    private FirebaseAuth.AuthStateListener mAuthListener;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -64,6 +79,12 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         initViews();
         initListeners();
         initObjects();
+
+        //Get Firebase auth instance
+        auth = FirebaseAuth.getInstance();
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        myRef = mFirebaseDatabase.getReference();
+
     }
 
     /**
@@ -81,8 +102,8 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
         textInputEditTextName = (TextInputEditText) findViewById(R.id.textInputEditTextName);
         textInputEditTextEmail = (TextInputEditText) findViewById(R.id.textInputEditTextEmail);
-        textInputEditTextAddress = (TextInputEditText) findViewById(R.id.textInputEditTextAddress);
         textInputEditTextMobile = (TextInputEditText) findViewById(R.id.textInputEditTextMobile);
+        textInputEditTextSurname = (TextInputEditText) findViewById(R.id.textInputEditTextSurname);
         textInputEditTextPassword = (TextInputEditText) findViewById(R.id.textInputEditTextPassword);
         textInputEditTextConfirmPassword = (TextInputEditText) findViewById(R.id.textInputEditTextConfirmPassword);
 
@@ -108,8 +129,6 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
      */
     private void initObjects() {
         inputValidation = new InputValidation(activity);
-        databaseHelper = new DatabaseHelper(activity);
-        user = new User();
 
     }
 
@@ -124,7 +143,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         switch (v.getId()) {
 
             case R.id.appCompatButtonRegister:
-                postDataToSQLite();
+                registerFirebase();
                 break;
 
             case R.id.appCompatTextViewLoginLink:
@@ -137,103 +156,62 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
      * This method is to validate the input text fields and post data to SQLite
      */
 
-    private String spinnerTest(String string){
-        switch (string) {
-            case "A RH+":
-                string="1";
-                break;
-            case "B RH+":
-                string="2";
-                break;
-            case "AB RH+":
-                string="3";
-                break;
-            case "0 RH+":
-                string="4";
-                break;
-            case "A RH-":
-                string="5";
-                break;
-            case "B RH-":
-                string="6";
-                break;
-            case "AB RH-":
-                string="7";
-                break;
-            case "0 RH-":
-                string="8";
-                break;
 
 
-        }
-        return string;
-    }
+    private void registerFirebase() {
 
-    private void postDataToSQLite() {
-        if (!inputValidation.isInputEditTextFilled(textInputEditTextName, textInputLayoutName, getString(R.string.error_message_name))) {
-            return;
-        }
-        if (!inputValidation.isInputEditTextFilled(textInputEditTextEmail, textInputLayoutEmail, getString(R.string.error_message_email))) {
-            return;
-        }
-        if (!inputValidation.isInputEditTextEmail(textInputEditTextEmail, textInputLayoutEmail, getString(R.string.error_message_email))) {
-            return;
-        }
-        if (!inputValidation.isInputEditTextFilled(textInputEditTextPassword, textInputLayoutPassword, getString(R.string.error_message_password))) {
-            return;
-        }
-        if (!inputValidation.isInputEditTextMatches(textInputEditTextPassword, textInputEditTextConfirmPassword,
-                textInputLayoutConfirmPassword, getString(R.string.error_password_match))) {
+        final String email = textInputEditTextEmail.getText().toString();
+        final String password = textInputEditTextPassword.getText().toString();
+        final String name = textInputEditTextName.getText().toString();
+        final String phoneNum = textInputEditTextMobile.getText().toString();
+        final String surname = textInputEditTextSurname.getText().toString();
+
+        if (TextUtils.isEmpty(email)) {
+            Toast.makeText(getApplicationContext(), "Enter email address!", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        if (!databaseHelper.checkUser(textInputEditTextEmail.getText().toString().trim())) {
+        if (TextUtils.isEmpty(password)) {
+            Toast.makeText(getApplicationContext(), "Enter password!", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-
-            user.setName(textInputEditTextName.getText().toString().trim());
-            user.setEmail(textInputEditTextEmail.getText().toString().trim());
-            user.setAddress(textInputEditTextAddress.getText().toString().trim());
-            user.setMobile(textInputEditTextMobile.getText().toString().trim());
-
-
-            user.setBtype(spinnnerBtype.getSelectedItem().toString().trim());
-
-            /*spinnnerBtype.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    user.setBtype(spinnerTest(spinnnerBtype.getSelectedItem().toString().trim()));
-                }
-
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
-
-                }
-            });*/
-
-
-            user.setPassword(textInputEditTextPassword.getText().toString().trim());
-            Bitmap largeIcon = BitmapFactory.decodeResource(getResources(), R.drawable.profil);
-            byte [] image=ProfilActivity.getBytes(largeIcon);
-            user.setImage(image);
-
-
-
-
-            databaseHelper.addUser(user);
-
-            // Snack Bar to show success message that record saved successfully
-            Snackbar.make(nestedScrollView, getString(R.string.success_message), Snackbar.LENGTH_LONG).show();
-
-            Intent accountsIntent = new Intent(activity, NavigaActivity.class);
-            accountsIntent.putExtra("EMAIL", textInputEditTextEmail.getText().toString().trim());
-            emptyInputEditText();
-            startActivity(accountsIntent);
-
-
-        } else {
+        if (password.length() < 6) {
+            Toast.makeText(getApplicationContext(), "Password too short, enter minimum 6 characters!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        else{
             // Snack Bar to show error message that record already exists
             Snackbar.make(nestedScrollView, getString(R.string.error_email_exists), Snackbar.LENGTH_LONG).show();
         }
+
+
+        //create user
+        auth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(RegisterActivity.this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        Toast.makeText(RegisterActivity.this, "createUserWithEmail:onComplete:" + task.isSuccessful(), Toast.LENGTH_SHORT).show();
+                        // If sign in fails, display a message to the user. If sign in succeeds
+                        // the auth state listener will be notified and logic to handle the
+                        // signed in user can be handled in the listener.
+                        if (!task.isSuccessful()) {
+                            Toast.makeText(RegisterActivity.this, "Authentication failed." + task.getException(),
+                                    Toast.LENGTH_SHORT).show();
+                        } else {
+                            FirebaseUser mUser = auth.getCurrentUser();
+                            User user = new User(name, email, surname, phoneNum);
+                            myRef.child("Users").child(mUser.getUid()).setValue(user);
+                            Intent accountsIntent = new Intent(activity, NavigaActivity.class);
+                            Bundle b = new Bundle();
+                            b.putSerializable("User", user);
+                            accountsIntent.putExtras(b);
+                            emptyInputEditText();
+                            startActivity(accountsIntent);
+                            finish();
+                        }
+                    }
+                });
 
 
     }
@@ -247,7 +225,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         textInputEditTextPassword.setText(null);
         textInputEditTextConfirmPassword.setText(null);
         textInputEditTextMobile.setText(null);
-        textInputEditTextAddress.setText(null);
+        textInputEditTextSurname.setText(null);
         spinnnerBtype.setVerticalScrollbarPosition(0);
     }
 }

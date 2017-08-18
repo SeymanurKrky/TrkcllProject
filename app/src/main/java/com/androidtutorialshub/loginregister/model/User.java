@@ -1,35 +1,26 @@
 package com.androidtutorialshub.loginregister.model;
 
+import java.io.Serializable;
+
 /**
  * Created by lalit on 9/12/2016.
  */
-public class User {
+public class User implements Serializable {
 
-    private int id;
     private String name;
     private String email;
-    private String password;
-    private String address;
+    private String surname;
     private String mobile;
-    private String btype;
+    private String image;
 
-    public byte[] getImage() {
+    public String getImage() {
         return image;
     }
 
-    public void setImage(byte[] image) {
+    public void setImage(String image) {
         this.image = image;
     }
 
-    private byte[] image;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public String getName() {
         return name;
@@ -47,20 +38,13 @@ public class User {
         this.email = email;
     }
 
-    public String getPassword() {
-        return password;
+
+    public String getSurname() {
+        return surname;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
+    public void setSurname(String surname) {
+        this.surname = surname;
     }
 
     public String getMobile() {
@@ -71,11 +55,13 @@ public class User {
         this.mobile = mobile;
     }
 
-    public String getBtype() {
-        return btype;
+    public User(String name, String email, String surname, String mobile) {
+        this.name = name;
+        this.email = email;
+        this.surname = surname;
+        this.mobile = mobile;
     }
 
-    public void setBtype(String btype) {
-        this.btype = btype;
+    public User() {
     }
 }

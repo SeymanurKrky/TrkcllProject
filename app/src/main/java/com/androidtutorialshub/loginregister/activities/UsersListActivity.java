@@ -66,13 +66,13 @@ public class UsersListActivity extends AppCompatActivity {
         String emailFromIntent = getIntent().getStringExtra("EMAIL");
         textViewName.setText(emailFromIntent);
 
-        getDataFromSQLite();
+        //getDataFromSQLite();
     }
 
     /**
      * This method is to fetch all user records from SQLite
      */
-    private void getDataFromSQLite() {
+   /* private void getDataFromSQLite() {
         // AsyncTask is used that SQLite operation not blocks the UI Thread.
         new AsyncTask<Void, Void, Void>() {
             @Override
@@ -89,5 +89,5 @@ public class UsersListActivity extends AppCompatActivity {
                 usersRecyclerAdapter.notifyDataSetChanged();
             }
         }.execute();
-    }
+    }*/
 }

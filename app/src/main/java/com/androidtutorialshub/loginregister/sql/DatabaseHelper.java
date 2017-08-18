@@ -76,12 +76,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      *
      * @param user
      */
-    public void addUser(User user) {
+    /*public void addUser(User user) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_USER_NAME, user.getName());
         values.put(COLUMN_USER_EMAIL, user.getEmail());
-        values.put(COLUMN_USER_ADDRESS,user.getAddress());
+        values.put(COLUMN_USER_ADDRESS,user.getSurname());
         values.put(COLUMN_USER_MOBILE,user.getMobile());
         values.put(COLUMN_USER_BLOODTYPE,user.getBtype());
         values.put(COLUMN_USER_PASSWORD, user.getPassword());
@@ -90,14 +90,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // Inserting Row
         db.insert(TABLE_USER, null, values);
         db.close();
-    }
+    }*/
 
     /**
      * This method is to fetch all user and return the list of user records
      *
      * @return list
      */
-    public List<User> getAllUser() {
+   /* public List<User> getAllUser() {
         // array of columns to fetch
         String[] columns = {
                 COLUMN_USER_ID,
@@ -121,7 +121,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
          * SQL query equivalent to this query function is
          * SELECT user_id,user_name,user_email,user_password FROM user ORDER BY user_name;
          */
-        Cursor cursor = db.query(TABLE_USER, //Table to query
+        /*Cursor cursor = db.query(TABLE_USER, //Table to query
                 columns,    //columns to return
                 null,        //columns for the WHERE clause
                 null,        //The values for the WHERE clause
@@ -137,7 +137,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 user.setId(Integer.parseInt(cursor.getString(cursor.getColumnIndex(COLUMN_USER_ID))));
                 user.setName(cursor.getString(cursor.getColumnIndex(COLUMN_USER_NAME)));
                 user.setEmail(cursor.getString(cursor.getColumnIndex(COLUMN_USER_EMAIL)));
-                user.setAddress(cursor.getString(cursor.getColumnIndex(COLUMN_USER_ADDRESS)));
+                user.setSurname(cursor.getString(cursor.getColumnIndex(COLUMN_USER_ADDRESS)));
                 user.setMobile(cursor.getString(cursor.getColumnIndex(COLUMN_USER_MOBILE)));
                 user.setBtype(cursor.getString(cursor.getColumnIndex(COLUMN_USER_BLOODTYPE)));
                 user.setPassword(cursor.getString(cursor.getColumnIndex(COLUMN_USER_PASSWORD)));
@@ -151,7 +151,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         // return user list
         return userList;
-    }
+    }*/
 
     /**
      * This method to update user record
@@ -164,18 +164,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(COLUMN_USER_NAME, user.getName());
         values.put(COLUMN_USER_EMAIL, user.getEmail());
-        values.put(COLUMN_USER_ADDRESS, user.getAddress());
-        values.put(COLUMN_USER_PASSWORD, user.getPassword());
+        values.put(COLUMN_USER_ADDRESS, user.getSurname());
+        //values.put(COLUMN_USER_PASSWORD, user.getPassword());
         values.put(COLUMN_USER_MOBILE,user.getMobile());
-        values.put(COLUMN_USER_BLOODTYPE,user.getBtype());
-        values.put(COLUMN_USER_PASSWORD,user.getPassword());
+        //values.put(COLUMN_USER_BLOODTYPE,user.getBtype());
+        //values.put(COLUMN_USER_PASSWORD,user.getPassword());
         values.put(COLUMN_USER_IMAGE,user.getImage());
 
 
 
         // updating row
-        db.update(TABLE_USER, values, COLUMN_USER_ID + " = ?",
-                new String[]{String.valueOf(user.getId())});
+        //db.update(TABLE_USER, values, COLUMN_USER_ID + " = ?",
+                //new String[]{String.valueOf(user.getId())});
         db.close();
     }
 
@@ -187,8 +187,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void deleteUser(User user) {
         SQLiteDatabase db = this.getWritableDatabase();
         // delete user record by id
-        db.delete(TABLE_USER, COLUMN_USER_ID + " = ?",
-                new String[]{String.valueOf(user.getId())});
+        //db.delete(TABLE_USER, COLUMN_USER_ID + " = ?",
+                //new String[]{String.valueOf(user.getId())});
         db.close();
     }
 

@@ -37,10 +37,9 @@ public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdap
     public void onBindViewHolder(UserViewHolder holder, int position) {
         holder.textViewName.setText(listUsers.get(position).getName());
         holder.textViewEmail.setText(listUsers.get(position).getEmail());
-        holder.textViewPassword.setText(listUsers.get(position).getPassword());
-        holder.textViewBtype.setText(listUsers.get(position).getBtype());
+        holder.textViewSurname.setText(listUsers.get(position).getSurname());
         holder.textViewMobile.setText(listUsers.get(position).getMobile());
-        holder.textViewAddress.setText(listUsers.get(position).getAddress());
+        holder.textViewAddress.setText(listUsers.get(position).getSurname());
     }
 
     @Override
@@ -57,7 +56,7 @@ public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdap
 
         public AppCompatTextView textViewName;
         public AppCompatTextView textViewEmail;
-        public AppCompatTextView textViewPassword;
+        public AppCompatTextView textViewSurname;
         public AppCompatTextView textViewAddress;
         public AppCompatTextView textViewMobile;
         public AppCompatTextView textViewBtype;
@@ -66,7 +65,7 @@ public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdap
             super(view);
             textViewName = (AppCompatTextView) view.findViewById(R.id.textViewName);
             textViewEmail = (AppCompatTextView) view.findViewById(R.id.textViewEmail);
-            textViewPassword = (AppCompatTextView) view.findViewById(R.id.textViewPassword);
+            textViewSurname = (AppCompatTextView) view.findViewById(R.id.textViewSurname);
             textViewAddress = (AppCompatTextView) view.findViewById(R.id.textViewAddress);
             textViewMobile = (AppCompatTextView) view.findViewById(R.id.textViewMobile);
             textViewBtype = (AppCompatTextView) view.findViewById(R.id.textViewBtype);
