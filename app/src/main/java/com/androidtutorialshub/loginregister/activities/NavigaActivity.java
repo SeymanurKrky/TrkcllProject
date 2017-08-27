@@ -268,7 +268,7 @@ public class NavigaActivity extends AppCompatActivity
 //set the fragment initially
 
 
-        } else if (id == R.id.nav_slideshow) {
+
 
         } else if (id == R.id.nav_manage) {
 
